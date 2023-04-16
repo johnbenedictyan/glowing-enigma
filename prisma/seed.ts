@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-import restaurantSeedData from '../seedData/restaurant_with_menu'
-import userSeedData from '../seedData/users_with_purchase_history'
+import restaurantSeedData from '../seedData/restaurant_with_menu';
+import userSeedData from '../seedData/users_with_purchase_history';
 
 const prisma = new PrismaClient()
 
@@ -21,35 +21,46 @@ export interface IPurchaseHistory {
   dishName: string
   dishRestaurantName: string
   transactionAmount: number
+  transactionDate: string | Date
 }
 
-interface IParsedPurchaseHistory extends IPurchaseHistory {
-  transactionDate: Date
-}
-
-interface IUnparsedPurchaseHistory extends IPurchaseHistory {
-  transactionDate: string
-}
 export interface IUser {
   cashBalance: number
   id: number
   name: string
-  purchaseHistory: IUnparsedPurchaseHistory[]
+  purchaseHistory: IPurchaseHistory[]
 }
 
 async function seedRestaurants() {
   console.log(`Start seeding restaurant data ...`)
   await Promise.all(
     restaurantSeedData.map(async (r) => {
-      prisma.restaurant.upsert({
-        where: { name: r.name },
+      await prisma.restaurant.upsert({
+        where: {
+          name: r.name,
+        },
         update: {},
         create: {
           name: r.name,
-          openingHours: r.openingHours,
           cashBalance: r.cashBalance,
+          openingHours: r.openingHours.split('/').map((y) => {
+            return y.trim()
+          }),
           menu: {
-            create: r.menu,
+            connectOrCreate: r.menu.map((menu) => {
+              return {
+                where: {
+                  name_restaurantName: {
+                    name: menu.name,
+                    restaurantName: r.name,
+                  },
+                },
+                create: {
+                  name: menu.name,
+                  price: menu.price,
+                },
+              }
+            }),
           },
         },
       })
@@ -59,20 +70,10 @@ async function seedRestaurants() {
 
 async function seedUsers() {
   console.log(`Start seeding user data ...`)
+
   await Promise.all(
     userSeedData.map(async (u) => {
-      const currUserPurchaseHistory: IUnparsedPurchaseHistory[] =
-        u.purchaseHistory
-      const parsedCurrUserPH: IParsedPurchaseHistory[] =
-        currUserPurchaseHistory.map((x) => {
-          return {
-            dishName: x.dishName,
-            dishRestaurantName: x.dishRestaurantName,
-            transactionAmount: x.transactionAmount,
-            transactionDate: new Date(x.transactionDate),
-          }
-        })
-      prisma.user.upsert({
+      await prisma.user.upsert({
         where: { id: u.id },
         update: {},
         create: {
@@ -80,7 +81,24 @@ async function seedUsers() {
           name: u.name,
           cashBalance: u.cashBalance,
           purchaseHistory: {
-            create: parsedCurrUserPH,
+            connectOrCreate: u.purchaseHistory.map((ph) => {
+              return {
+                where: {
+                  userId_dishName_dishRestaurantName_transactionDate: {
+                    userId: u.id,
+                    dishName: ph.dishName,
+                    dishRestaurantName: ph.dishName,
+                    transactionDate: new Date(ph.transactionDate),
+                  },
+                },
+                create: {
+                  dishName: ph.dishName,
+                  dishRestaurantName: ph.dishRestaurantName,
+                  transactionAmount: ph.transactionAmount,
+                  transactionDate: new Date(ph.transactionDate),
+                },
+              }
+            }),
           },
         },
       })

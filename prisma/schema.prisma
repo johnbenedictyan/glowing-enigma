@@ -1,10 +1,11 @@
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = "file:./dev.db"
+    provider = "postgresql"
+    url      = "postgres://postgres:password@localhost:5005"
 }
 
 model User {
@@ -15,10 +16,10 @@ model User {
 }
 
 model Restaurant {
-    name         String                  @id
+    name         String   @id
     menu         Dish[]
     cashBalance  Decimal
-    openingHours String
+    openingHours String[]
 }
 
 model Dish {

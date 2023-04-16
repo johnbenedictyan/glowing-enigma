@@ -3,11 +3,11 @@ import { Router } from "express";
 import restaurantRouter from "./restaurant-router";
 
 // Export the base-router
-const baseRouter = Router();
+const apiRouter = Router();
 
 // Setup routers
-baseRouter.use("/restaurants", restaurantRouter);
+apiRouter.use("/restaurants", restaurantRouter);
 
 // *** Export default **** //
 
-export default baseRouter;
+export default apiRouter;

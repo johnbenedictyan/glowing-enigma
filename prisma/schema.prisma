@@ -15,30 +15,30 @@ model User {
 }
 
 model Restaurant {
-    id           Int     @id @default(autoincrement())
-    name         String  @unique
+    name         String  @id
     openingHours String
     menu         Dish[]
     cashBalance  Decimal
 }
 
 model Dish {
-    name         String
-    price        Decimal
-    Restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-    restaurantId Int
-    Purchase     Purchase[]
+    name           String
+    price          Decimal
+    Restaurant     Restaurant @relation(fields: [restaurantName], references: [name])
+    Purchase       Purchase[]
+    restaurantName String
 
-    @@unique([name, restaurantId])
+    @@unique([name, restaurantName])
 }
 
 model Purchase {
-    User             User     @relation(fields: [userId], references: [id])
-    userId           Int
-    Dish             Dish     @relation(fields: [dishName, dishRestaurantId], references: [name, restaurantId])
-    dishName         String
-    dishRestaurantId Int
-    transactionDate  DateTime
+    User               User     @relation(fields: [userId], references: [id])
+    userId             Int
+    Dish               Dish     @relation(fields: [dishName, dishRestaurantName], references: [name, restaurantName])
+    dishName           String
+    dishRestaurantName String
+    transactionAmount  Decimal
+    transactionDate    DateTime
 
-    @@unique([userId, dishName, dishRestaurantId, transactionDate])
+    @@unique([userId, dishName, dishRestaurantName, transactionDate])
 }

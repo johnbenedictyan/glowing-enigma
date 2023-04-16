@@ -15,10 +15,10 @@ model User {
 }
 
 model Restaurant {
-    name         String  @id
-    openingHours String
+    name         String                  @id
     menu         Dish[]
     cashBalance  Decimal
+    openingHours String
 }
 
 model Dish {

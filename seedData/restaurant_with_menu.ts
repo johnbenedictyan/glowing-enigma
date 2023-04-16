@@ -1,4 +1,6 @@
-[
+import { IRestaurant } from "../prisma/seed"
+
+const seedRestaurantData: IRestaurant[] = [
     {
         "cashBalance": 4483.84,
         "menu": [
@@ -118,3 +120,5 @@
         "name": "024 Grille"
     }
 ]
+
+export default seedRestaurantData;

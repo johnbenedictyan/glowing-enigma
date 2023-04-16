@@ -8,8 +8,8 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Restaurant" (
     "name" TEXT NOT NULL PRIMARY KEY,
-    "openingHours" TEXT NOT NULL,
-    "cashBalance" DECIMAL NOT NULL
+    "cashBalance" DECIMAL NOT NULL,
+    "openingHours" TEXT NOT NULL
 );
 
 -- CreateTable
